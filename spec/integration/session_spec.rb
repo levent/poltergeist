@@ -177,6 +177,34 @@ describe Capybara::Session do
           JS
         end
 
+        context "Capybara's retry mechanism" do
+          before do
+            @fn_move_element_two = <<-JS
+              setTimeout(function() {
+                document.getElementById('two').style.position = 'relative'
+              }, 50)
+            JS
+          end
+
+          it "does not retry the click if capybara's timeout limit is 0" do
+            expect {
+              @session.execute_script(@fn_move_element_two)
+              @session.find(:css, '#one').click
+            }.to raise_error(Capybara::Poltergeist::ClickFailed)
+          end
+
+          it "retries click respecting capybara's timeout limit" do
+            Capybara.default_wait_time = 0.1
+
+            expect {
+              @session.execute_script(@fn_move_element_two)
+              @session.find(:css, '#one').click
+            }.to_not raise_error(Capybara::Poltergeist::ClickFailed)
+
+            Capybara.default_wait_time = 0
+          end
+        end
+
         it 'detects if an element is obscured when clicking' do
           expect {
             @session.find(:css, '#one').click

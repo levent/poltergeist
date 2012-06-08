@@ -12,6 +12,10 @@ module Capybara::Poltergeist
       it 'has no inspector' do
         subject.inspector.should be_nil
       end
+
+      it 'contains an array of invalid_element_errors' do
+        subject.invalid_element_errors.should == [Capybara::Poltergeist::ObsoleteNode, Capybara::Poltergeist::ClickFailed]
+      end
     end
 
     context 'with a :logger option' do
